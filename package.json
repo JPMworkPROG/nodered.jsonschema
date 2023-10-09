@@ -1,0 +1,34 @@
+{
+  "name": "@senseup/senseflow-json-validator",
+  "version": "1.0.0",
+  "description": "A base template for a SenseFlow plugin.",
+  "repository": "git@gitlab.com:multicast/senseup/senseflow-event-hubs.git",
+  "author": "SenseUp <squad@senseup.tech>",
+  "bugs": {
+    "email": "squad@senseup.tech"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "scripts": {
+    "build": "tsc && copyfiles -u 1 \"src/*.html\" \"src/icons/*\" dist"
+  },
+  "dependencies": {
+    "jsonschema": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.0",
+    "@types/node-red": "^1.0.0",
+    "copyfiles": "^2.0.0",
+    "typescript": "latest"
+  },
+  "node-red": {
+    "nodes": {
+      "name-of-your-node": "dist/json-validator.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ]
+}

@@ -1,0 +1,21 @@
+<script type="text/javascript">
+    RED.nodes.registerType("name-of-your-node", {
+        category: "category-of-your-node",
+        color: "#FFC010",
+        outputs: 1,
+        inputs: 1,
+        defaults: {
+            name: { value: "" },
+        },
+        label: function () {
+            return this.name || "My Node";
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="name-of-your-node">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name </label>
+        <input type="text" id="node-input-name" placeholder="My Node" />
+    </div>
+</script>
