@@ -1,39 +1,58 @@
 import { NodeInitializer, Node, NodeDef } from 'node-red';
 import { Schema, Validator } from 'jsonschema'
 
-function jsonSchemaValidate(validator: Validator, instance: any, schema: Schema) {
+function jsonSchemaValidate(validator: Validator, instance: any, schema: string): { isValid: boolean, errors: string[] } {
     try {
-        const validation = validator.validate(instance, schema)
+        const response = { isValid: true, errors: [] }
+        const validation = validator.validate(instance, JSON.parse(schema) )
 
-        if (!validation.errors.length)
-            return true
-        return validation.errors.map(validationError => ({ message: validationError.stack }))
+        if (validation.errors.length) {
+            response.isValid = false
+            response.errors = validation.errors.map(validationError => (validationError.stack))
+        }
+
+        return response
     } catch (error) {
         console.log("Erro na validação");
     }
 }
 
+type NodeConfig = {
+    name: string
+    jsonSchemaConfigExternal: JsonSchemaConfigExternalNode
+    jsonSchemaConfigNode: string
+} & NodeDef
+
+type JsonSchemaConfigExternalNode = {
+    name: string
+    schema: string
+}
+
 const initializer: NodeInitializer = function (RED) {
-    function NodeConstructor(this: Node, config: NodeDef) {
+    function NodeConstructor(this: Node, config: NodeConfig) {
         RED.nodes.createNode(this, config);
+        const jsonSchemaConfigNode = (RED.nodes.getNode(config.jsonSchemaConfigNode) as unknown as JsonSchemaConfigExternalNode)
+
+        config.jsonSchemaConfigExternal = {
+            name: jsonSchemaConfigNode.name,
+            schema: jsonSchemaConfigNode.schema
+        }
 
         const jsonSchemaValidator = new Validator()
-
-        // To avoid confusion with the "this" object, you can attribute
-        // its value to a local variable. In place of "this" you'd use
-        // said variable.
-        // const node = this;
 
         // Do something with the node when a new message is received
         this.on('input', (msg, send, done) => {
             const instance = msg.payload
-            const schema = {
-                "id": "/SimplePerson",
-                "type": "object",
-                properties: { "a": { type: "string" }, "b": { type: "string" } }
+            const schema = config.jsonSchemaConfigExternal.schema
+            
+            const jsonValidated = jsonSchemaValidate(jsonSchemaValidator, instance, schema)
+            
+            if (jsonValidated.isValid)
+                send([null, msg])
+            else {
+                msg["jsonValidationError"] = jsonValidated.errors
+                send([msg, null])
             }
-            jsonSchemaValidate(jsonSchemaValidator, instance, schema)
-            send(msg);
             done();
         });
 
@@ -46,7 +65,7 @@ const initializer: NodeInitializer = function (RED) {
     }
 
     // Register the node constructor for the node type
-    RED.nodes.registerType("name-of-your-node", NodeConstructor);
+    RED.nodes.registerType("json-validator", NodeConstructor);
 }
 
 export = initializer;

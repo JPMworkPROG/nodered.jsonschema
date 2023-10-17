@@ -23,7 +23,8 @@
   },
   "node-red": {
     "nodes": {
-      "name-of-your-node": "dist/json-validator.js"
+      "json-validator": "dist/json-validator.js",
+      "json-schema": "dist/json-schema.js"
     }
   },
   "files": [

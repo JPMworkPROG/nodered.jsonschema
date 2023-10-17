@@ -1,21 +1,80 @@
+<!-- Nó de principal -->
 <script type="text/javascript">
-    RED.nodes.registerType("name-of-your-node", {
-        category: "category-of-your-node",
+    RED.nodes.registerType("json-validator", {
+        category: "function",
+        color: "#FFC010",
+        outputs: 2,
+        inputs: 1,
+        defaults: {
+            name: { value: "" },
+            jsonSchemaConfigNode: { type: "json-schema" }
+        },
+        label: function () {
+            return this.name || "JSON Validator";
+        },
+    });
+</script>
+
+<script type="text/html" data-template-name="json-validator">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name </label>
+        <input type="text" id="node-input-name" placeholder="My Node" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-jsonSchemaConfigNode"><i class="icon-tag"></i> Validation schema </label>
+        <input type="text" id="node-input-jsonSchemaConfigNode" placeholder="" />
+    </div>
+</script>
+
+
+<!-- Nó de configuração -->
+<script type="text/javascript">
+    RED.nodes.registerType("json-schema", {
+        category: "config",
         color: "#FFC010",
         outputs: 1,
         inputs: 1,
         defaults: {
             name: { value: "" },
+            schema: { value: "" }
         },
         label: function () {
-            return this.name || "My Node";
+            return this.name || "JSON Schema";
         },
+        oneditprepare: function () {
+            $("#node-input-name").val(this.name)
+            $("#node-input-schema").val(this.schema)
+            $("#node-input-schema").typedInput({
+                type: "json",
+                types: ["json"]
+            })
+        },
+        oneditsave: function () {
+            this.name = $("#node-input-name").val()
+            try {
+                JSON.parse($("#node-input-schema").val())
+                this.schema = $("#node-input-schema").val()
+            } catch (error) {
+                RED.notify("JSON Schema inválido: " + error, "error")
+                return false;
+            }
+        }
     });
 </script>
 
-<script type="text/html" data-template-name="name-of-your-node">
+<script type="text/html" data-template-name="json-schema">
+    <style>
+        .red-ui-typedInput-container {
+            width: 70% !important;
+        }
+    </style>
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name </label>
-        <input type="text" id="node-input-name" placeholder="My Node" />
+        <label for="node-input-name"><i class="icon-tag"></i> Schema name </label>
+        <input type="text" id="node-input-name" placeholder="My schema" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-schema"><i class="icon-tag"></i> JSON Schema </label>
+        <!-- <textarea id="node-input-schema" rows="5" style="width:70%;"></textarea> -->
+        <input type="text" id="node-input-schema">
     </div>
 </script>
