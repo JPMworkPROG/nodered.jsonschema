@@ -26,7 +26,7 @@
   },
   "node-red": {
     "nodes": {
-      "json validator": "dist/json-validator.js",
+      "json-validator": "dist/json-validator.js",
       "json-schema": "dist/json-schema.js"
     }
   },
