@@ -21,9 +21,12 @@
     "copyfiles": "^2.0.0",
     "typescript": "latest"
   },
+  "peerDependencies": {
+    "node-red": "2.2.2 || >=3.0.0"
+  },
   "node-red": {
     "nodes": {
-      "json-validator": "dist/json-validator.js",
+      "json validator": "dist/json-validator.js",
       "json-schema": "dist/json-schema.js"
     }
   },

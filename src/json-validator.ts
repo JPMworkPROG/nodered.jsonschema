@@ -1,10 +1,10 @@
-import { NodeInitializer, Node, NodeDef } from 'node-red';
-import { Schema, Validator } from 'jsonschema'
+import { NodeInitializer, Node, NodeDef, util } from 'node-red';
+import { Validator } from 'jsonschema'
 
 function jsonSchemaValidate(validator: Validator, instance: any, schema: string): { isValid: boolean, errors: string[] } {
     try {
         const response = { isValid: true, errors: [] }
-        const validation = validator.validate(instance, JSON.parse(schema) )
+        const validation = validator.validate(instance, JSON.parse(schema))
 
         if (validation.errors.length) {
             response.isValid = false
@@ -20,7 +20,8 @@ function jsonSchemaValidate(validator: Validator, instance: any, schema: string)
 type NodeConfig = {
     name: string
     jsonSchemaConfigExternal: JsonSchemaConfigExternalNode
-    jsonSchemaConfigNode: string
+    jsonSchemaConfigNode: string,
+    propertyMessageToValidate: string
 } & NodeDef
 
 type JsonSchemaConfigExternalNode = {
@@ -42,18 +43,22 @@ const initializer: NodeInitializer = function (RED) {
 
         // Do something with the node when a new message is received
         this.on('input', (msg, send, done) => {
-            const instance = msg.payload
-            const schema = config.jsonSchemaConfigExternal.schema
-            
-            const jsonValidated = jsonSchemaValidate(jsonSchemaValidator, instance, schema)
-            
-            if (jsonValidated.isValid)
-                send([null, msg])
-            else {
-                msg["jsonValidationError"] = jsonValidated.errors
-                send([msg, null])
+            const instance = util.getMessageProperty(msg, config.propertyMessageToValidate);
+
+            if (instance) {
+                const schema = config.jsonSchemaConfigExternal.schema
+                const jsonValidated = jsonSchemaValidate(jsonSchemaValidator, instance, schema)
+
+                if (jsonValidated.isValid)
+                    send([null, msg])
+                else {
+                    msg["jsonValidationError"] = jsonValidated.errors
+                    send([msg, null])
+                }
+                done();
+            } else {
+                this.error(`Property "${config.propertyMessageToValidate}" not found in message.`)
             }
-            done();
         });
 
         // Do something with the node when it's updated (e.g. when a new config is received)

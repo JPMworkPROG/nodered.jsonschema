@@ -1,24 +1,43 @@
 <!-- Nó de principal -->
 <script type="text/javascript">
     RED.nodes.registerType("json-validator", {
+        icon: "json.png",
         category: "function",
-        color: "#FFC010",
+        color: "#89CFF0",
         outputs: 2,
         inputs: 1,
         defaults: {
             name: { value: "" },
+            propertyMessageToValidate: { value: "" },
             jsonSchemaConfigNode: { type: "json-schema" }
         },
         label: function () {
             return this.name || "JSON Validator";
         },
+        oneditprepare: function () {
+            $("#node-input-propertyMessageToValidate").typedInput({
+                type: "msg",
+                types: ["msg", "flow", "global"],
+                typeField: "#node-input-propertyMessageToValidate-type"
+            })
+        }
     });
 </script>
 
 <script type="text/html" data-template-name="json-validator">
+    <style>
+        .red-ui-typedInput-container {
+            width: 70% !important;
+        }
+    </style>
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name </label>
         <input type="text" id="node-input-name" placeholder="My Node" />
+    </div>
+    <div class="form-row">
+        <label for="node-input-propertyMessageToValidate"><i class="icon-tag"></i> Property to validate </label>
+        <input type="text" id="node-input-propertyMessageToValidate">
+        <input type="hidden" id="node-input-propertyMessageToValidate-type">
     </div>
     <div class="form-row">
         <label for="node-input-jsonSchemaConfigNode"><i class="icon-tag"></i> Validation schema </label>
@@ -74,7 +93,6 @@
     </div>
     <div class="form-row">
         <label for="node-input-schema"><i class="icon-tag"></i> JSON Schema </label>
-        <!-- <textarea id="node-input-schema" rows="5" style="width:70%;"></textarea> -->
         <input type="text" id="node-input-schema">
     </div>
 </script>
