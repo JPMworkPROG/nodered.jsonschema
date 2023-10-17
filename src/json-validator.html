@@ -9,6 +9,7 @@
         defaults: {
             name: { value: "" },
             propertyMessageToValidate: { value: "" },
+            propertyMessageToValidateType: { value: "" },
             jsonSchemaConfigNode: { type: "json-schema" }
         },
         label: function () {
@@ -18,8 +19,11 @@
             $("#node-input-propertyMessageToValidate").typedInput({
                 type: "msg",
                 types: ["msg", "flow", "global"],
-                typeField: "#node-input-propertyMessageToValidate-type"
+                typeField: "#node-input-propertyMessageToValidateType"
             })
+        },
+        oneditsave: function () {
+            this.propertyMessageToValidateType = $("#node-input-propertyMessageToValidateType").val()
         }
     });
 </script>
@@ -37,7 +41,7 @@
     <div class="form-row">
         <label for="node-input-propertyMessageToValidate"><i class="icon-tag"></i> Property to validate </label>
         <input type="text" id="node-input-propertyMessageToValidate">
-        <input type="hidden" id="node-input-propertyMessageToValidate-type">
+        <input type="hidden" id="node-input-propertyMessageToValidateType">
     </div>
     <div class="form-row">
         <label for="node-input-jsonSchemaConfigNode"><i class="icon-tag"></i> Validation schema </label>

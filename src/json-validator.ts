@@ -21,6 +21,7 @@ type NodeConfig = {
     name: string
     jsonSchemaConfigExternal: JsonSchemaConfigExternalNode
     jsonSchemaConfigNode: string,
+    propertyMessageToValidateType: string,
     propertyMessageToValidate: string
 } & NodeDef
 
@@ -43,7 +44,14 @@ const initializer: NodeInitializer = function (RED) {
 
         // Do something with the node when a new message is received
         this.on('input', (msg, send, done) => {
-            const instance = util.getMessageProperty(msg, config.propertyMessageToValidate);
+            let instance = null
+            if (config.propertyMessageToValidateType === "msg") {
+                instance = util.getMessageProperty(msg, config.propertyMessageToValidate);
+            } else if (config.propertyMessageToValidateType === "flow") {
+                instance = this.context().flow.get(config.propertyMessageToValidate)
+            } else {
+                instance = this.context().global.get(config.propertyMessageToValidate)
+            }
 
             if (instance) {
                 const schema = config.jsonSchemaConfigExternal.schema
@@ -57,7 +65,7 @@ const initializer: NodeInitializer = function (RED) {
                 }
                 done();
             } else {
-                this.error(`Property "${config.propertyMessageToValidate}" not found in message.`)
+                this.error(`Property "${config.propertyMessageToValidate}" not found in ${config.propertyMessageToValidateType}.`)
             }
         });
 
